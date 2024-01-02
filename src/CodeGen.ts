@@ -1,5 +1,5 @@
 import { PromptTemplate } from "langchain/prompts";
-import { LLMChain } from 'langchain/chains'
+import { LLMChain, SequentialChain } from 'langchain/chains'
 import { OpenAI } from 'langchain/llms/openai';
 
 async function execute() {
@@ -7,24 +7,43 @@ async function execute() {
         openAIApiKey: process.env.openapi_key
     })
 
-    const prompt = new PromptTemplate({
+    const codePrompt = new PromptTemplate({
         inputVariables: ['language', 'task'],
-        template: "Write a very short {language} function that will {task}",
+        template: "Write a very short {language} function that will {task}.",
+    });
+
+    const unitTestPrompt = new PromptTemplate({
+        inputVariables: ['language', 'code'],
+        template: "Write a unit test for a {language} function that will test without comments the following code:\n{code}",
     });
 
     const codeChain = new LLMChain({
         llm: model,
-        prompt: prompt,
+        prompt: codePrompt,
+        outputKey:'code',
+    });
+    const testChain = new LLMChain({
+        llm: model,
+        prompt: unitTestPrompt,
+        outputKey:'test',
+    });
+    const chain = new SequentialChain({
+        chains: [codeChain, testChain],
+        inputVariables: ['language', 'task'],
+        outputVariables: ['code', 'test'],
+    
     });
 
-    const result = await codeChain.call(
+    const result = await chain.call(
         {
             language: 'javascript',
             task: 'add two numbers',
         }
     )
-
-    console.log(result.text)
+    console.log('*****code:*****')
+    console.log(result.code)
+    console.log('*****test:*****')
+    console.log(result.test)
 
 }
 
