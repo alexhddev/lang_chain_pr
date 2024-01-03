@@ -3,9 +3,7 @@ import { LLMChain, SequentialChain } from 'langchain/chains'
 import { OpenAI } from 'langchain/llms/openai';
 
 async function execute() {
-    const model = new OpenAI({
-        openAIApiKey: process.env.openapi_key
-    })
+    const model = new OpenAI()
 
     const codePrompt = new PromptTemplate({
         inputVariables: ['language', 'task'],
