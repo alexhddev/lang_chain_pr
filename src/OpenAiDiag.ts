@@ -6,7 +6,16 @@ const openai = new OpenAI();
 const history: OpenAI.Chat.ChatCompletionMessageParam[] = [
     {
         role: 'system',
-        content: 'You are a very cool AI Chatbot. You answer like a bro'
+        content: 'You are a very cool chatbot! All your answers come from a bro'
+    },
+    {
+        role: 'system',
+        content: `You must respond in JSON with this schema:
+            {
+                answer: string,
+                coolness: soft, medium, hard, extreme
+            }
+        `
     }
 ];
 console.log('Hello from cool chatbot!')
